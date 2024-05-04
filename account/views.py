@@ -1,12 +1,9 @@
 from django.shortcuts import render, redirect
-from .forms import SignUpForm, LoginForm
 from django.contrib.auth import authenticate, login
-# Create your views here.
-
+from .forms import SignUpForm, LoginForm
 
 def index(request):
     return render(request, 'index.html')
-
 
 def register(request):
     msg = None
@@ -14,46 +11,54 @@ def register(request):
         form = SignUpForm(request.POST)
         if form.is_valid():
             user = form.save()
-            msg = 'user created'
-            return redirect('login_view')
+            msg = 'User created successfully.'
+            if user.is_admin:
+                login(request, user)
+                return redirect('adminpage')
+            elif user.is_customer:
+                login(request, user)
+                return redirect('customer')
+            elif user.is_employee:
+                login(request, user)
+                return redirect('employee')
         else:
-            msg = 'form is not valid'
+            msg = 'Error creating user. Please check the form.'
     else:
         form = SignUpForm()
-    return render(request,'register.html', {'form': form, 'msg': msg})
-
+    return render(request, 'register.html', {'form': form, 'msg': msg})
 
 def login_view(request):
-    form = LoginForm(request.POST or None)
     msg = None
+    form = LoginForm(request.POST or None)
     if request.method == 'POST':
         if form.is_valid():
             username = form.cleaned_data.get('username')
             password = form.cleaned_data.get('password')
             user = authenticate(username=username, password=password)
-            if user is not None and user.is_admin:
+            if user is not None:
                 login(request, user)
-                return redirect('adminpage')
-            elif user is not None and user.is_customer:
-                login(request, user)
-                return redirect('customer')
-            elif user is not None and user.is_employee:
-                login(request, user)
-                return redirect('employee')
+                if user.is_admin:
+                    return redirect('adminpage')
+                elif user.is_customer:
+                    return redirect('customer')
+                elif user.is_employee:
+                    return redirect('employee')
             else:
-                msg= 'invalid credentials'
+                msg = 'Invalid credentials. Please try again.'
         else:
-            msg = 'error validating form'
-    return render(request, 'login.html', {'form': form, 'msg': msg})
+            msg = 'Error validating form. Please try again.'
+    return render(request, 'login.html', {'form': form, 'msg': msg}) 
 
 
 def admin(request):
-    return render(request,'admin.html')
+    return render(request, 'admin.html')
 
 
 def customer(request):
-    return render(request,'customer.html')
+    return render(request, 'customer.html')
 
 
 def employee(request):
-    return render(request,'employee.html')
+    return render(request, 'employee.html')
+
+
