@@ -16,6 +16,9 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 
+admin.site.site_title = "SLMS"
+admin.site.site_header = "SLMS"
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('account.urls')),
