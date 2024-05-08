@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login,logout
 from .forms import SignUpForm, LoginForm
 
 def index(request):
@@ -61,4 +61,6 @@ def customer(request):
 def employee(request):
     return render(request, 'employee.html')
 
-
+def LogoutPage(request):
+    logout(request)
+    return redirect('login')
